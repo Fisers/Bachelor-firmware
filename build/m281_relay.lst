@@ -1,0 +1,191 @@
+ARM GAS  /tmp/ccDxacXq.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"m281_relay.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/Components/Src/m281_relay.c"
+  20              		.section	.text.m281_init,"ax",%progbits
+  21              		.align	1
+  22              		.global	m281_init
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	m281_init:
+  28              	.LFB132:
+   1:Drivers/Components/Src/m281_relay.c **** #include "m281_relay.h"
+   2:Drivers/Components/Src/m281_relay.c **** 
+   3:Drivers/Components/Src/m281_relay.c **** void m281_init(M281 relay) {
+  29              		.loc 1 3 28 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 32
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 70B5     		push	{r4, r5, r6, lr}
+  34              		.cfi_def_cfa_offset 16
+  35              		.cfi_offset 4, -16
+  36              		.cfi_offset 5, -12
+  37              		.cfi_offset 6, -8
+  38              		.cfi_offset 14, -4
+  39 0002 88B0     		sub	sp, sp, #32
+  40              		.cfi_def_cfa_offset 48
+  41 0004 6B46     		mov	r3, sp
+  42 0006 83E80300 		stm	r3, {r0, r1}
+   4:Drivers/Components/Src/m281_relay.c ****     // Initialize the pin in case it wasn't already done
+   5:Drivers/Components/Src/m281_relay.c ****     GPIO_InitTypeDef GPIO_InitStruct = {};
+  43              		.loc 1 5 5 view .LVU1
+  44              		.loc 1 5 22 is_stmt 0 view .LVU2
+  45 000a 0024     		movs	r4, #0
+  46 000c 0394     		str	r4, [sp, #12]
+  47 000e 0494     		str	r4, [sp, #16]
+  48 0010 0594     		str	r4, [sp, #20]
+  49 0012 0694     		str	r4, [sp, #24]
+  50 0014 0794     		str	r4, [sp, #28]
+   6:Drivers/Components/Src/m281_relay.c ****     GPIO_InitStruct.Pin = relay.GPIO_Pin;
+  51              		.loc 1 6 5 is_stmt 1 view .LVU3
+  52              		.loc 1 6 32 is_stmt 0 view .LVU4
+ARM GAS  /tmp/ccDxacXq.s 			page 2
+
+
+  53 0016 BDF80460 		ldrh	r6, [sp, #4]
+  54              		.loc 1 6 25 view .LVU5
+  55 001a 0396     		str	r6, [sp, #12]
+   7:Drivers/Components/Src/m281_relay.c ****     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  56              		.loc 1 7 5 is_stmt 1 view .LVU6
+  57              		.loc 1 7 26 is_stmt 0 view .LVU7
+  58 001c 0123     		movs	r3, #1
+  59 001e 0493     		str	r3, [sp, #16]
+   8:Drivers/Components/Src/m281_relay.c ****     GPIO_InitStruct.Pull = GPIO_NOPULL;
+  60              		.loc 1 8 5 is_stmt 1 view .LVU8
+   9:Drivers/Components/Src/m281_relay.c ****     HAL_GPIO_Init(relay.GPIOx, &GPIO_InitStruct);
+  61              		.loc 1 9 5 view .LVU9
+  62 0020 0546     		mov	r5, r0
+  63 0022 03A9     		add	r1, sp, #12
+  64 0024 FFF7FEFF 		bl	HAL_GPIO_Init
+  65              	.LVL0:
+  10:Drivers/Components/Src/m281_relay.c **** 
+  11:Drivers/Components/Src/m281_relay.c ****     // Set relay to be disabled
+  12:Drivers/Components/Src/m281_relay.c ****     HAL_GPIO_WritePin(relay.GPIOx, relay.GPIO_Pin, GPIO_PIN_RESET);
+  66              		.loc 1 12 5 view .LVU10
+  67 0028 2246     		mov	r2, r4
+  68 002a 3146     		mov	r1, r6
+  69 002c 2846     		mov	r0, r5
+  70 002e FFF7FEFF 		bl	HAL_GPIO_WritePin
+  71              	.LVL1:
+  13:Drivers/Components/Src/m281_relay.c **** }
+  72              		.loc 1 13 1 is_stmt 0 view .LVU11
+  73 0032 08B0     		add	sp, sp, #32
+  74              		.cfi_def_cfa_offset 16
+  75              		@ sp needed
+  76 0034 70BD     		pop	{r4, r5, r6, pc}
+  77              		.cfi_endproc
+  78              	.LFE132:
+  80              		.section	.text.m281_enable,"ax",%progbits
+  81              		.align	1
+  82              		.global	m281_enable
+  83              		.syntax unified
+  84              		.thumb
+  85              		.thumb_func
+  87              	m281_enable:
+  88              	.LFB133:
+  14:Drivers/Components/Src/m281_relay.c **** 
+  15:Drivers/Components/Src/m281_relay.c **** void m281_enable(M281 relay) {
+  89              		.loc 1 15 30 is_stmt 1 view -0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 8
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  93 0000 00B5     		push	{lr}
+  94              		.cfi_def_cfa_offset 4
+  95              		.cfi_offset 14, -4
+  96 0002 83B0     		sub	sp, sp, #12
+  97              		.cfi_def_cfa_offset 16
+  98 0004 02AB     		add	r3, sp, #8
+  99 0006 03E90300 		stmdb	r3, {r0, r1}
+  16:Drivers/Components/Src/m281_relay.c ****     HAL_GPIO_WritePin(relay.GPIOx, relay.GPIO_Pin, GPIO_PIN_SET);
+ 100              		.loc 1 16 5 view .LVU13
+ 101 000a 0122     		movs	r2, #1
+ARM GAS  /tmp/ccDxacXq.s 			page 3
+
+
+ 102 000c BDF80410 		ldrh	r1, [sp, #4]
+ 103 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 104              	.LVL2:
+  17:Drivers/Components/Src/m281_relay.c **** }
+ 105              		.loc 1 17 1 is_stmt 0 view .LVU14
+ 106 0014 03B0     		add	sp, sp, #12
+ 107              		.cfi_def_cfa_offset 4
+ 108              		@ sp needed
+ 109 0016 5DF804FB 		ldr	pc, [sp], #4
+ 110              		.cfi_endproc
+ 111              	.LFE133:
+ 113              		.section	.text.m281_disable,"ax",%progbits
+ 114              		.align	1
+ 115              		.global	m281_disable
+ 116              		.syntax unified
+ 117              		.thumb
+ 118              		.thumb_func
+ 120              	m281_disable:
+ 121              	.LFB134:
+  18:Drivers/Components/Src/m281_relay.c **** 
+  19:Drivers/Components/Src/m281_relay.c **** void m281_disable(M281 relay) {
+ 122              		.loc 1 19 31 is_stmt 1 view -0
+ 123              		.cfi_startproc
+ 124              		@ args = 0, pretend = 0, frame = 8
+ 125              		@ frame_needed = 0, uses_anonymous_args = 0
+ 126 0000 00B5     		push	{lr}
+ 127              		.cfi_def_cfa_offset 4
+ 128              		.cfi_offset 14, -4
+ 129 0002 83B0     		sub	sp, sp, #12
+ 130              		.cfi_def_cfa_offset 16
+ 131 0004 02AB     		add	r3, sp, #8
+ 132 0006 03E90300 		stmdb	r3, {r0, r1}
+  20:Drivers/Components/Src/m281_relay.c ****     HAL_GPIO_WritePin(relay.GPIOx, relay.GPIO_Pin, GPIO_PIN_RESET);
+ 133              		.loc 1 20 5 view .LVU16
+ 134 000a 0022     		movs	r2, #0
+ 135 000c BDF80410 		ldrh	r1, [sp, #4]
+ 136 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 137              	.LVL3:
+  21:Drivers/Components/Src/m281_relay.c **** }
+ 138              		.loc 1 21 1 is_stmt 0 view .LVU17
+ 139 0014 03B0     		add	sp, sp, #12
+ 140              		.cfi_def_cfa_offset 4
+ 141              		@ sp needed
+ 142 0016 5DF804FB 		ldr	pc, [sp], #4
+ 143              		.cfi_endproc
+ 144              	.LFE134:
+ 146              		.text
+ 147              	.Letext0:
+ 148              		.file 2 "/home/daniels/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-n
+ 149              		.file 3 "/home/daniels/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-n
+ 150              		.file 4 "Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l496xx.h"
+ 151              		.file 5 "Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio.h"
+ 152              		.file 6 "Drivers/Components/Inc/m281_relay.h"
+ARM GAS  /tmp/ccDxacXq.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 m281_relay.c
+     /tmp/ccDxacXq.s:21     .text.m281_init:0000000000000000 $t
+     /tmp/ccDxacXq.s:27     .text.m281_init:0000000000000000 m281_init
+     /tmp/ccDxacXq.s:81     .text.m281_enable:0000000000000000 $t
+     /tmp/ccDxacXq.s:87     .text.m281_enable:0000000000000000 m281_enable
+     /tmp/ccDxacXq.s:114    .text.m281_disable:0000000000000000 $t
+     /tmp/ccDxacXq.s:120    .text.m281_disable:0000000000000000 m281_disable
+
+UNDEFINED SYMBOLS
+HAL_GPIO_Init
+HAL_GPIO_WritePin

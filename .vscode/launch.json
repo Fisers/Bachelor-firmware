@@ -1,0 +1,64 @@
+{
+    "configurations": [
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/ITB_Studies.elf",
+            "name": "Debug STM32",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32l496",
+            "configFiles": [
+                "openocd.cfg"
+            ],
+            "svdFile": "STM32L4R9.svd"
+        },
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/ITB_Studies.elf",
+            "name": "Attach STM32",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32l496",
+            "configFiles": [
+                "openocd.cfg"
+            ],
+            "svdFile": "STM32L4R9.svd"
+        },
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/ITB_Studies.elf",
+            "name": "Debug STM32",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32l496",
+            "configFiles": [
+                "openocd.cfg"
+            ],
+            "svdFile": "STM32L4R9.svd"
+        },
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/ITB_Studies.elf",
+            "name": "Attach STM32",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32l496",
+            "configFiles": [
+                "openocd.cfg"
+            ],
+            "svdFile": "STM32L4R9.svd"
+        }
+    ]
+}
