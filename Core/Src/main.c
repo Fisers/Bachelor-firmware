@@ -22,7 +22,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include <string.h>
+#include "ftoa.h"
 #include "m281_relay.h"
+#include "water_sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,26 +49,26 @@ UART_HandleTypeDef hlpuart1;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for blink01 */
-osThreadId_t blink01Handle;
-const osThreadAttr_t blink01_attributes = {
-  .name = "blink01",
+/* Definitions for comsTask */
+osThreadId_t comsTaskHandle;
+const osThreadAttr_t comsTask_attributes = {
+  .name = "comsTask",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
-/* Definitions for blink02 */
-osThreadId_t blink02Handle;
-const osThreadAttr_t blink02_attributes = {
-  .name = "blink02",
+/* Definitions for sensorRead */
+osThreadId_t sensorReadHandle;
+const osThreadAttr_t sensorRead_attributes = {
+  .name = "sensorRead",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for controlTask */
+osThreadId_t controlTaskHandle;
+const osThreadAttr_t controlTask_attributes = {
+  .name = "controlTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
 const M281 red_led = {GPIOB, LD3_Pin};
@@ -75,9 +79,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
-void StartDefaultTask(void *argument);
-void StartBlink01(void *argument);
-void StartBlink02(void *argument);
+void StartComsTask(void *argument);
+void StartSensorRead(void *argument);
+void StartControlTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -121,6 +125,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // Initialize all devices
   m281_init(red_led);
+  // water_sensor_add('C', 13);
 
   /* USER CODE END 2 */
 
@@ -144,14 +149,14 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  /* creation of comsTask */
+  comsTaskHandle = osThreadNew(StartComsTask, NULL, &comsTask_attributes);
 
-  /* creation of blink01 */
-  blink01Handle = osThreadNew(StartBlink01, NULL, &blink01_attributes);
+  /* creation of sensorRead */
+  sensorReadHandle = osThreadNew(StartSensorRead, NULL, &sensorRead_attributes);
 
-  /* creation of blink02 */
-  blink02Handle = osThreadNew(StartBlink02, NULL, &blink02_attributes);
+  /* creation of controlTask */
+  controlTaskHandle = osThreadNew(StartControlTask, NULL, &controlTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -251,10 +256,10 @@ static void MX_LPUART1_UART_Init(void)
 
   /* USER CODE END LPUART1_Init 1 */
   hlpuart1.Instance = LPUART1;
-  hlpuart1.Init.BaudRate = 209700;
-  hlpuart1.Init.WordLength = UART_WORDLENGTH_7B;
+  hlpuart1.Init.BaudRate = 230400;
+  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
   hlpuart1.Init.StopBits = UART_STOPBITS_1;
-  hlpuart1.Init.Parity = UART_PARITY_NONE;
+  hlpuart1.Init.Parity = UART_PARITY_EVEN;
   hlpuart1.Init.Mode = UART_MODE_TX_RX;
   hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
@@ -330,10 +335,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
-  GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+  // GPIO_InitStruct.Pin = B1_Pin;
+  // GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  // GPIO_InitStruct.Pull = GPIO_NOPULL;
+  // HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD3_Pin|LD2_Pin;
@@ -355,6 +360,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(USB_PowerSwitchOn_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PC6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -363,62 +381,68 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_StartComsTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the comsTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_StartComsTask */
+void StartComsTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    char msg[128];
+    char liters[16];
+    ftoa(water_sensor_get_liters(0), liters, 3);
+    taskENTER_CRITICAL();
+    sprintf(msg, "Water liters - %s \n", liters);
+    taskEXIT_CRITICAL();
+    HAL_StatusTypeDef halStatus = HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
+    osDelay(10);
   }
   /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_StartBlink01 */
+/* USER CODE BEGIN Header_StartSensorRead */
 /**
-* @brief Function implementing the blink01 thread.
+* @brief Function implementing the sensorRead thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartBlink01 */
-void StartBlink01(void *argument)
+/* USER CODE END Header_StartSensorRead */
+void StartSensorRead(void *argument)
 {
-  /* USER CODE BEGIN StartBlink01 */
+  /* USER CODE BEGIN StartSensorRead */
   /* Infinite loop */
   for(;;)
   {
-    m281_enable(red_led);
-    osDelay(600);
-    m281_disable(red_led);
-    osDelay(600);
+    osDelay(1);
   }
-  /* USER CODE END StartBlink01 */
+  /* USER CODE END StartSensorRead */
 }
 
-/* USER CODE BEGIN Header_StartBlink02 */
+/* USER CODE BEGIN Header_StartControlTask */
 /**
-* @brief Function implementing the blink02 thread.
+* @brief Function implementing the controlTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartBlink02 */
-void StartBlink02(void *argument)
+/* USER CODE END Header_StartControlTask */
+void StartControlTask(void *argument)
 {
-  /* USER CODE BEGIN StartBlink02 */
+  /* USER CODE BEGIN StartControlTask */
   /* Infinite loop */
   for(;;)
   {
-    // HAL_GPIO_TogglePin(GPIOB, LD3_Pin);
-    osDelay(500);
+    if(water_sensor_get_liters(0) > 0.1) {
+      m281_enable(red_led);
+    }
+    osDelay(1);
   }
-  /* USER CODE END StartBlink02 */
+  /* USER CODE END StartControlTask */
 }
 
 /**

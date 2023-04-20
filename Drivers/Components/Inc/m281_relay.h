@@ -13,8 +13,7 @@ typedef struct {
 /**
  * @brief Initializes the relay, sets it to default state - open
  * 
- * @param GPIOx where x can be (A..H) to select the GPIO peripheral for STM32L4 family
- * @param GPIO_Pin specifies the pin where the relay is connected to.
+ * @param relay Relay that should be initialized
  */
 void m281_init(M281 relay);
 

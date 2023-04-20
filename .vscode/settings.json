@@ -1,4 +1,9 @@
 {
     "cortex-debug.armToolchainPath": "/home/daniels/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-none-eabi-gcc/12.2.1-1.2.1/.content/bin",
-    "cortex-debug.openocdPath": "/home/daniels/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/openocd/0.12.0-1.1/.content/bin/openocd"
+    "cortex-debug.openocdPath": "/home/daniels/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/openocd/0.12.0-1.1/.content/bin/openocd",
+    "files.associations": {
+        "sen0217_water_flow_sensor.h": "c",
+        "stm32l4xx_hal.h": "c"
+    },
+    "cortex-debug.variableUseNaturalFormat": true
 }

@@ -43,6 +43,7 @@ Core/Src/stm32l4xx_hal_timebase_tim.c \
 Core/Src/stm32l4xx_it.c \
 Core/Src/system_stm32l4xx.c \
 Drivers/Components/Src/m281_relay.c \
+Drivers/Components/Src/sen0217_water_flow_sensor.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c \
@@ -63,6 +64,9 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c \
+Middlewares/Src/commons.c \
+Middlewares/Src/ftoa.c \
+Middlewares/Src/water_sensor.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
 Middlewares/Third_Party/FreeRTOS/Source/croutine.c \
 Middlewares/Third_Party/FreeRTOS/Source/event_groups.c \
@@ -152,6 +156,7 @@ C_INCLUDES =  \
 -IDrivers/Components/Inc \
 -IDrivers/STM32L4xx_HAL_Driver/Inc \
 -IDrivers/STM32L4xx_HAL_Driver/Inc/Legacy \
+-IMiddlewares/Inc \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
