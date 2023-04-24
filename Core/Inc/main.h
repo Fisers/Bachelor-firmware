@@ -59,16 +59,13 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
+#define B1_EXTI_IRQn EXTI15_10_IRQn
 #define LD3_Pin GPIO_PIN_14
 #define LD3_GPIO_Port GPIOB
 #define USB_OverCurrent_Pin GPIO_PIN_5
 #define USB_OverCurrent_GPIO_Port GPIOG
 #define USB_PowerSwitchOn_Pin GPIO_PIN_6
 #define USB_PowerSwitchOn_GPIO_Port GPIOG
-#define STLK_RX_Pin GPIO_PIN_7
-#define STLK_RX_GPIO_Port GPIOG
-#define STLK_TX_Pin GPIO_PIN_8
-#define STLK_TX_GPIO_Port GPIOG
 #define USB_SOF_Pin GPIO_PIN_8
 #define USB_SOF_GPIO_Port GPIOA
 #define USB_VBUS_Pin GPIO_PIN_9
