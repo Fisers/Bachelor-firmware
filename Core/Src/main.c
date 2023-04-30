@@ -125,7 +125,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // Initialize all devices
   m281_init(red_led);
-  // water_sensor_add('C', 13);
+  water_sensor_add('C', 8);
 
   /* USER CODE END 2 */
 
