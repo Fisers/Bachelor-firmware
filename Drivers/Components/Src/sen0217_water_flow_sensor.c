@@ -2,6 +2,7 @@
 #include "component_config.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "errors.h"
 
 typedef struct {
     double liters;
@@ -15,12 +16,15 @@ struct WaterSensors {
 };
 struct WaterSensors waterSensors = {.last_index = -1};
 
-void init(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin) {
+void sen0217_init(char pin_letter, uint8_t pin_number) {
+    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+    uint16_t GPIO_Pin = 1 << pin_number;
+
     // Initialize the pin in case it wasn't already done
     GPIO_InitTypeDef GPIO_InitStruct = {};
     GPIO_InitStruct.Pin = GPIO_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
     HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 
     // Enable NVIC for our pin
@@ -61,14 +65,30 @@ void init(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin) {
     taskEXIT_CRITICAL();
 }
 
-double get_liters(uint16_t id) {
-    if(id > waterSensors.last_index)
-        return 0;
+uint8_t sen0217_deinit(uint16_t id) {
+    if (id > waterSensors.last_index) return OUT_OF_RANGE;
+
+    // Deinitialize pin, don't Disable NVIC line in case other sensors are on the same line
+    HAL_GPIO_DeInit(waterSensors.waterSensor[id].GPIOx, waterSensors.waterSensor[id].GPIO_Pin);
+
+    // Set everything to NULL for relay object
+    taskENTER_CRITICAL();
+    waterSensors.waterSensor[id].liters = 0;
+    waterSensors.waterSensor[id].GPIOx = NULL;
+    waterSensors.waterSensor[id].GPIO_Pin = NULL;
+    taskEXIT_CRITICAL();
+
+    return NO_ERROR;
+}
+
+double sen0217_get_liters(uint16_t id) {
+    if(id > waterSensors.last_index) return OUT_OF_RANGE;
+    if(waterSensors.waterSensor[id].GPIOx == NULL) return DOESNT_EXIST;
 
     return waterSensors.waterSensor[id].liters;
 }
 
-void reset_liters(uint16_t id) {
+void sen0217_reset_liters(uint16_t id) {
     if(id > waterSensors.last_index)
         return;
 

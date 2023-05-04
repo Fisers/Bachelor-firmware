@@ -67,6 +67,7 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c \
 Middlewares/Src/commons.c \
 Middlewares/Src/ftoa.c \
+Middlewares/Src/relay.c \
 Middlewares/Src/water_sensor.c \
 Middlewares/Src/water_switch.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \

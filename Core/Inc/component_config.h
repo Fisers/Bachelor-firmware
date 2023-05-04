@@ -12,3 +12,4 @@
 /* WATER FLOW SENSOR ---------------------------------------------- */
 #define MAX_WATER_SENSORS 16
 #define MAX_WATER_SWITCHES 16
+#define MAX_RELAYS 64

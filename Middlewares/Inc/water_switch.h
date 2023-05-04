@@ -23,7 +23,7 @@ void water_switch_remove(uint16_t id);
  * @brief Get status if there is liquid flowing through the switch
  * 
  * @param id Assigned ID of the sensor
- * @return 0 - There is no water flowing, 1 - There is water flowing
+ * @return 0 - There is no water flowing, 1 - There is water flowing, 2 - An error occured
  */
 uint8_t water_switch_is_flowing(uint16_t id);
 
