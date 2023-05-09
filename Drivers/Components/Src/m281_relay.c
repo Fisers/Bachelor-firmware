@@ -1,6 +1,7 @@
 #include "m281_relay.h"
+#include "commons.h"
 
-void m281_init(char pin_letter, uint8_t pin_number) {
+Errors m281_init(char pin_letter, uint8_t pin_number) {
     GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
     uint16_t GPIO_Pin = 1 << pin_number;
 
@@ -13,18 +14,24 @@ void m281_init(char pin_letter, uint8_t pin_number) {
 
     // Set relay to be disabled
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_RESET);
+
+    return NO_ERROR;
 }
 
-void m281_enable(char pin_letter, uint8_t pin_number) {
+Errors m281_enable(char pin_letter, uint8_t pin_number) {
     GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
+
+    return NO_ERROR;
 }
 
-void m281_disable(char pin_letter, uint8_t pin_number) {
+Errors m281_disable(char pin_letter, uint8_t pin_number) {
     GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_RESET);
+
+    return NO_ERROR;
 }

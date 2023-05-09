@@ -2,6 +2,7 @@
 #define WATER_SWITCH
 
 #include "fsu50a.h"
+#include "errors.h"
 
 
 /**
@@ -9,23 +10,26 @@
  * 
  * @param pin_letter GPIOx where x is the character of GPIO port
  * @param pin_number PIN number of GPIO (0 to 15)
+ * @return Errors Error status defined in errors.h
  */
-void water_switch_add(char pin_letter, uint8_t pin_number);
+Errors water_switch_add(char pin_letter, uint8_t pin_number);
 
 /**
  * @brief Removes the water switch
  * 
  * @param id Assigned ID of the sensor
+ * @return Errors Error status defined in errors.h
  */
-void water_switch_remove(uint16_t id);
+Errors water_switch_remove(uint16_t id);
 
 /**
  * @brief Get status if there is liquid flowing through the switch
  * 
  * @param id Assigned ID of the sensor
- * @return 0 - There is no water flowing, 1 - There is water flowing, 2 - An error occured
+ * @param is_flowing 0 - There is no water flowing, 1 - There is water flowing, 2 - An error occured
+ * @return Errors Error status defined in errors.h
  */
-uint8_t water_switch_is_flowing(uint16_t id);
+Errors water_switch_is_flowing(uint16_t id, uint8_t *is_flowing);
 
 
 #endif  // ifndef WATER_SWITCH
