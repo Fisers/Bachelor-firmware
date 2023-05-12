@@ -22,11 +22,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include <string.h>
+#include "printf.h"
 #include "ftoa.h"
 #include "relay.h"
 #include "water_sensor.h"
+#include "pressure_sensor.h"
+#include "errors.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef hlpuart1;
+
+RTC_HandleTypeDef hrtc;
+
+SPI_HandleTypeDef hspi1;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
@@ -71,7 +76,10 @@ const osThreadAttr_t controlTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
-
+double pressure = 0;
+double temperature = 0;
+double liters = 0;
+Errors error = NO_ERROR;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,6 +87,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
+static void MX_SPI1_Init(void);
+static void MX_RTC_Init(void);
 void StartComsTask(void *argument);
 void StartSensorRead(void *argument);
 void StartControlTask(void *argument);
@@ -122,10 +132,13 @@ int main(void)
   MX_GPIO_Init();
   MX_LPUART1_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
+  MX_SPI1_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   // Initialize all devices
   relay_add('B', 7);
-  water_sensor_add('C', 9);
+  water_sensor_add('B', 8);
+  pressure_sensor_add('A', 4, hspi1);
 
   /* USER CODE END 2 */
 
@@ -204,8 +217,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE
+                              |RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
@@ -275,6 +290,86 @@ static void MX_LPUART1_UART_Init(void)
 }
 
 /**
+  * @brief RTC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_RTC_Init(void)
+{
+
+  /* USER CODE BEGIN RTC_Init 0 */
+
+  /* USER CODE END RTC_Init 0 */
+
+  /* USER CODE BEGIN RTC_Init 1 */
+
+  /* USER CODE END RTC_Init 1 */
+
+  /** Initialize RTC Only
+  */
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RTC_Init 2 */
+  RTC_TimeTypeDef time;
+  time.Hours = 19;
+  time.Minutes = 53;
+  time.Seconds = 0;
+  HAL_RTC_SetTime(&hrtc, &time, RTC_FORMAT_BIN);
+  /* USER CODE END RTC_Init 2 */
+
+}
+
+/**
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
+
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 7;
+  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
   * @brief USB_OTG_FS Initialization Function
   * @param None
   * @retval None
@@ -323,10 +418,10 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   HAL_PWREx_EnableVddIO2();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
@@ -335,10 +430,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
-  // GPIO_InitStruct.Pin = B1_Pin;
-  // GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  // GPIO_InitStruct.Pull = GPIO_NOPULL;
-  // HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = B1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD3_Pin|LD2_Pin;
@@ -395,13 +490,24 @@ void StartComsTask(void *argument)
   for(;;)
   {
     char msg[128];
-    char liters[16];
-    ftoa(water_sensor_get_liters(0), liters, 3);
-    taskENTER_CRITICAL();
-    sprintf(msg, "Water liters - %s \n", liters);
+    char press[16], temp[16], liters_str[16];
+    ftoa(pressure, press, 3);
+    ftoa(temperature, temp, 3);
+    ftoa(liters, liters_str, 3);
+
+    RTC_TimeTypeDef sTime;
+    HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc, NULL, RTC_FORMAT_BIN);   // For some reason GetDate needs to be called afterwards to get actual time (https://stackoverflow.com/questions/47040039/stm32l4-rtc-hal-not-working)
+    double secfrac = sTime.Seconds + (((double)(sTime.SecondFraction-sTime.SubSeconds)) / ((double)(sTime.SecondFraction+1)));
+    char seconds_ms[8];
+    ftoa(secfrac, seconds_ms, 3);
+    taskENTER_CRITICAL(); 
+    snprintf(msg, 128, "%d:%d:%s,%s,%s,%s,%d\n", sTime.Hours, sTime.Minutes, seconds_ms, press, temp, liters_str, error);
     taskEXIT_CRITICAL();
-    HAL_StatusTypeDef halStatus = HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
-    osDelay(10);
+    HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
+    vTaskDelay(25);
+
+    relay_enable(0);
   }
   /* USER CODE END 5 */
 }
@@ -419,7 +525,24 @@ void StartSensorRead(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    error = NO_ERROR; // Reset error status for this measurement run
+
+    Errors temp_error = NO_ERROR;
+    temp_error = pressure_sensor_read_data(0);
+    if(temp_error != NO_ERROR) error = temp_error;
+
+    temp_error = pressure_sensor_get_pressure(0, &pressure);
+    if(temp_error != NO_ERROR) error = temp_error;
+
+    temp_error = pressure_sensor_get_temp(0, &temperature);
+    if(temp_error != NO_ERROR) error = temp_error;
+
+    temp_error = water_sensor_get_liters(0, &liters);
+    if(temp_error != NO_ERROR) error = temp_error;
+
+    vTaskDelay(500);
+
+    relay_disable(0);
   }
   /* USER CODE END StartSensorRead */
 }
@@ -437,9 +560,6 @@ void StartControlTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    if(water_sensor_get_liters(0) > 0.1) {
-      relay_enable(0);
-    }
     osDelay(1);
   }
   /* USER CODE END StartControlTask */

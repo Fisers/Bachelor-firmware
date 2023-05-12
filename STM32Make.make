@@ -42,6 +42,7 @@ Core/Src/stm32l4xx_hal_msp.c \
 Core/Src/stm32l4xx_hal_timebase_tim.c \
 Core/Src/stm32l4xx_it.c \
 Core/Src/system_stm32l4xx.c \
+Drivers/Components/Src/abp2150pgsa.c \
 Drivers/Components/Src/fsu50a.c \
 Drivers/Components/Src/m281_relay.c \
 Drivers/Components/Src/sen0217_water_flow_sensor.c \
@@ -60,6 +61,10 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
+Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.c \
+Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc_ex.c \
+Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_spi.c \
+Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_spi_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
@@ -67,6 +72,8 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c \
 Middlewares/Src/commons.c \
 Middlewares/Src/ftoa.c \
+Middlewares/Src/pressure_sensor.c \
+Middlewares/Src/printf.c \
 Middlewares/Src/relay.c \
 Middlewares/Src/water_sensor.c \
 Middlewares/Src/water_switch.c \

@@ -9,7 +9,16 @@
  * 
  */
 
+#ifndef ERRORS
+#define ERRORS
 
-#define NO_ERROR 0
-#define OUT_OF_RANGE 2
-#define DOESNT_EXIST 3
+typedef enum
+{
+    NO_ERROR =          0,
+    OUT_OF_RANGE =      2,
+    DOESNT_EXIST =      3,
+    DISABLED =          4,
+    TRIES_EXCEEDED =    5
+} Errors;
+
+#endif // ERRORS

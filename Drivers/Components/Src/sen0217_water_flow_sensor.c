@@ -2,9 +2,10 @@
 #include "component_config.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "errors.h"
+#include "commons.h"
 
 typedef struct {
+    uint8_t enabled;
     double liters;
     GPIO_TypeDef *GPIOx;
     uint16_t GPIO_Pin;
@@ -16,7 +17,7 @@ struct WaterSensors {
 };
 struct WaterSensors waterSensors = {.last_index = -1};
 
-void sen0217_init(char pin_letter, uint8_t pin_number) {
+Errors sen0217_init(char pin_letter, uint8_t pin_number) {
     GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
     uint16_t GPIO_Pin = 1 << pin_number;
 
@@ -59,13 +60,16 @@ void sen0217_init(char pin_letter, uint8_t pin_number) {
     taskENTER_CRITICAL();
     waterSensors.last_index++;
     uint16_t id = waterSensors.last_index;
+    waterSensors.waterSensor[id].enabled = 1;
     waterSensors.waterSensor[id].liters = 0;
     waterSensors.waterSensor[id].GPIOx = GPIOx;
     waterSensors.waterSensor[id].GPIO_Pin = GPIO_Pin;
     taskEXIT_CRITICAL();
+
+    return NO_ERROR;
 }
 
-uint8_t sen0217_deinit(uint16_t id) {
+Errors sen0217_deinit(uint16_t id) {
     if (id > waterSensors.last_index) return OUT_OF_RANGE;
 
     // Deinitialize pin, don't Disable NVIC line in case other sensors are on the same line
@@ -73,26 +77,25 @@ uint8_t sen0217_deinit(uint16_t id) {
 
     // Set everything to NULL for relay object
     taskENTER_CRITICAL();
-    waterSensors.waterSensor[id].liters = 0;
-    waterSensors.waterSensor[id].GPIOx = NULL;
-    waterSensors.waterSensor[id].GPIO_Pin = NULL;
+    waterSensors.waterSensor[id].enabled = 0;
     taskEXIT_CRITICAL();
 
     return NO_ERROR;
 }
 
-double sen0217_get_liters(uint16_t id) {
+Errors sen0217_get_liters(uint16_t id, double *liters) {
     if(id > waterSensors.last_index) return OUT_OF_RANGE;
     if(waterSensors.waterSensor[id].GPIOx == NULL) return DOESNT_EXIST;
 
-    return waterSensors.waterSensor[id].liters;
+    *liters = waterSensors.waterSensor[id].liters;
+    return NO_ERROR;
 }
 
-void sen0217_reset_liters(uint16_t id) {
-    if(id > waterSensors.last_index)
-        return;
+Errors sen0217_reset_liters(uint16_t id) {
+    if(id > waterSensors.last_index) return OUT_OF_RANGE;
 
     waterSensors.waterSensor[id].liters = 0;
+    return NO_ERROR;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

@@ -2,6 +2,7 @@
 #define FSU50A
 
 #include "stm32l4xx_hal.h"
+#include "errors.h"
 
 
 /**
@@ -9,8 +10,9 @@
  * 
  * @param pin_letter GPIOx where x is the character of GPIO port
  * @param pin_number PIN number of GPIO (0 to 15)
+ * @return Errors Error status defined in errors.h 
  */
-void fsu50a_init(char pin_letter, uint8_t pin_number);
+Errors fsu50a_init(char pin_letter, uint8_t pin_number);
 
 /**
  * @brief Get the state of the switch, closed or open (liquid flowing or not)
