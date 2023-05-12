@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "ftoa.h"
-#include "m281_relay.h"
+#include "relay.h"
 #include "water_sensor.h"
 /* USER CODE END Includes */
 
@@ -71,7 +71,7 @@ const osThreadAttr_t controlTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
-const M281 red_led = {GPIOB, LD3_Pin};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,8 +124,8 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
   // Initialize all devices
-  m281_init(red_led);
-  // water_sensor_add('C', 13);
+  relay_add('B', 7);
+  water_sensor_add('C', 9);
 
   /* USER CODE END 2 */
 
@@ -438,7 +438,7 @@ void StartControlTask(void *argument)
   for(;;)
   {
     if(water_sensor_get_liters(0) > 0.1) {
-      m281_enable(red_led);
+      relay_enable(0);
     }
     osDelay(1);
   }

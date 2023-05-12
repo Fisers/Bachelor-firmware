@@ -13,9 +13,17 @@
 void water_sensor_add(char pin_letter, uint8_t pin_number);
 
 /**
+ * @brief Remove water sensor from the list, deinitialize the pin
+ * 
+ * @param id Assigned ID of the device
+ * @return uint8_t Error status defined in errors.h
+ */
+uint8_t water_sensor_remove(uint16_t id);
+
+/**
  * @brief Get liters that have flown through the sensor
  * 
- * @param id Assigned ID fo the sensor
+ * @param id Assigned ID of the sensor
  * @return double fluid in liters
  */
 double water_sensor_get_liters(uint16_t id);
