@@ -18,6 +18,8 @@ struct WaterSensors {
 struct WaterSensors waterSensors = {.last_index = -1};
 
 Errors sen0217_init(char pin_letter, uint8_t pin_number) {
+    if(waterSensors.last_index+1 > MAX_WATER_SENSORS) return OUT_OF_RANGE;
+
     GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
     uint16_t GPIO_Pin = 1 << pin_number;
 
@@ -85,7 +87,7 @@ Errors sen0217_deinit(uint16_t id) {
 
 Errors sen0217_get_liters(uint16_t id, double *liters) {
     if(id > waterSensors.last_index) return OUT_OF_RANGE;
-    if(waterSensors.waterSensor[id].GPIOx == NULL) return DOESNT_EXIST;
+    if(waterSensors.waterSensor[id].enabled == 0) return DISABLED;
 
     *liters = waterSensors.waterSensor[id].liters;
     return NO_ERROR;

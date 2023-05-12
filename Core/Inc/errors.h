@@ -18,7 +18,8 @@ typedef enum
     OUT_OF_RANGE =      2,
     DOESNT_EXIST =      3,
     DISABLED =          4,
-    TRIES_EXCEEDED =    5
+    TRIES_EXCEEDED =    5,
+    MISC_ERROR =        6
 } Errors;
 
 #endif // ERRORS

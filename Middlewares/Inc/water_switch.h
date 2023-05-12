@@ -12,7 +12,7 @@
  * @param pin_number PIN number of GPIO (0 to 15)
  * @return Errors Error status defined in errors.h
  */
-Errors water_switch_add(char pin_letter, uint8_t pin_number);
+Errors water_switch_add(char pin_letter, uint8_t pin_number, int16_t *assigned_id);
 
 /**
  * @brief Removes the water switch

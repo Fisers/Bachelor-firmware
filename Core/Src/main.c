@@ -22,12 +22,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
+#include "cli_interface.h"
 #include "printf.h"
 #include "ftoa.h"
-#include "relay.h"
-#include "water_sensor.h"
-#include "pressure_sensor.h"
 #include "errors.h"
+#include "component_config.h"
+#include "pressure_sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,14 +59,14 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 osThreadId_t comsTaskHandle;
 const osThreadAttr_t comsTask_attributes = {
   .name = "comsTask",
-  .stack_size = 128 * 4,
+  .stack_size = 128 * 10,
   .priority = (osPriority_t) osPriorityRealtime,
 };
 /* Definitions for sensorRead */
 osThreadId_t sensorReadHandle;
 const osThreadAttr_t sensorRead_attributes = {
   .name = "sensorRead",
-  .stack_size = 128 * 4,
+  .stack_size = 128 * 6,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for controlTask */
@@ -76,10 +77,7 @@ const osThreadAttr_t controlTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
-double pressure = 0;
-double temperature = 0;
-double liters = 0;
-Errors error = NO_ERROR;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -135,10 +133,6 @@ int main(void)
   MX_SPI1_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
-  // Initialize all devices
-  relay_add('B', 7);
-  water_sensor_add('B', 8);
-  pressure_sensor_add('A', 4, hspi1);
 
   /* USER CODE END 2 */
 
@@ -272,7 +266,7 @@ static void MX_LPUART1_UART_Init(void)
   /* USER CODE END LPUART1_Init 1 */
   hlpuart1.Instance = LPUART1;
   hlpuart1.Init.BaudRate = 230400;
-  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
+  hlpuart1.Init.WordLength = UART_WORDLENGTH_9B;
   hlpuart1.Init.StopBits = UART_STOPBITS_1;
   hlpuart1.Init.Parity = UART_PARITY_EVEN;
   hlpuart1.Init.Mode = UART_MODE_TX_RX;
@@ -320,11 +314,7 @@ static void MX_RTC_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN RTC_Init 2 */
-  RTC_TimeTypeDef time;
-  time.Hours = 19;
-  time.Minutes = 53;
-  time.Seconds = 0;
-  HAL_RTC_SetTime(&hrtc, &time, RTC_FORMAT_BIN);
+  
   /* USER CODE END RTC_Init 2 */
 
 }
@@ -486,28 +476,13 @@ static void MX_GPIO_Init(void)
 void StartComsTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
+  // Initialize CLI interface
+  cli_init(&hlpuart1, &hrtc, &hspi1);
   /* Infinite loop */
   for(;;)
   {
-    char msg[128];
-    char press[16], temp[16], liters_str[16];
-    ftoa(pressure, press, 3);
-    ftoa(temperature, temp, 3);
-    ftoa(liters, liters_str, 3);
-
-    RTC_TimeTypeDef sTime;
-    HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-    HAL_RTC_GetDate(&hrtc, NULL, RTC_FORMAT_BIN);   // For some reason GetDate needs to be called afterwards to get actual time (https://stackoverflow.com/questions/47040039/stm32l4-rtc-hal-not-working)
-    double secfrac = sTime.Seconds + (((double)(sTime.SecondFraction-sTime.SubSeconds)) / ((double)(sTime.SecondFraction+1)));
-    char seconds_ms[8];
-    ftoa(secfrac, seconds_ms, 3);
-    taskENTER_CRITICAL(); 
-    snprintf(msg, 128, "%d:%d:%s,%s,%s,%s,%d\n", sTime.Hours, sTime.Minutes, seconds_ms, press, temp, liters_str, error);
-    taskEXIT_CRITICAL();
-    HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
-    vTaskDelay(25);
-
-    relay_enable(0);
+    cli_send_readings();
+    vTaskDelay(25 / portTICK_PERIOD_MS);
   }
   /* USER CODE END 5 */
 }
@@ -525,24 +500,18 @@ void StartSensorRead(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    error = NO_ERROR; // Reset error status for this measurement run
+    if (!system_status) continue;
 
-    Errors temp_error = NO_ERROR;
-    temp_error = pressure_sensor_read_data(0);
-    if(temp_error != NO_ERROR) error = temp_error;
-
-    temp_error = pressure_sensor_get_pressure(0, &pressure);
-    if(temp_error != NO_ERROR) error = temp_error;
-
-    temp_error = pressure_sensor_get_temp(0, &temperature);
-    if(temp_error != NO_ERROR) error = temp_error;
-
-    temp_error = water_sensor_get_liters(0, &liters);
-    if(temp_error != NO_ERROR) error = temp_error;
-
-    vTaskDelay(500);
-
-    relay_disable(0);
+    Errors error = NO_ERROR;
+    for(int i = 0; i < MAX_PRESSURE_SENSORS; i++) {
+      error = pressure_sensor_read_data(i);
+      if(error == DISABLED) continue;
+      else if(error == OUT_OF_RANGE) break;
+      else if(error != NO_ERROR) {
+        global_error = error;
+      }
+    }
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
   /* USER CODE END StartSensorRead */
 }
@@ -560,7 +529,8 @@ void StartControlTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    cli_handle_add_device();
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
   /* USER CODE END StartControlTask */
 }

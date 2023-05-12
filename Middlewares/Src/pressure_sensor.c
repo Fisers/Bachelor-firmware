@@ -15,12 +15,14 @@ typedef struct {
     double temperature;
 } PressureSensor;
 struct PressureSensors {
-    PressureSensor pressureSensor[MAX_WATER_SWITCHES];
+    PressureSensor pressureSensor[MAX_PRESSURE_SENSORS];
     int16_t last_index;
 };
 struct PressureSensors pressureSensors = {.last_index = -1};
 
-Errors pressure_sensor_add(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef hspi) {
+Errors pressure_sensor_add(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef hspi, int16_t *assigned_id) {
+    if(pressureSensors.last_index+1 > MAX_PRESSURE_SENSORS) return OUT_OF_RANGE;
+
     Errors error = abp2150pgsa_init(pin_letter, pin_number, hspi);
     if(error != NO_ERROR) return error;
 
@@ -35,6 +37,7 @@ Errors pressure_sensor_add(char pin_letter, uint8_t pin_number, SPI_HandleTypeDe
     pressureSensors.pressureSensor[id].pressure = 0;
     pressureSensors.pressureSensor[id].temperature = 0;
     taskEXIT_CRITICAL();
+    *assigned_id = id;
 
     return NO_ERROR;
 }
@@ -54,11 +57,15 @@ Errors pressure_sensor_read_data(uint16_t id) {
     if (id > pressureSensors.last_index) return OUT_OF_RANGE;
     if (pressureSensors.pressureSensor[id].enabled == 0) return DISABLED;
 
-    Errors error;
+    Errors error = NO_ERROR;
     PressureSensor *pressureSensor = &pressureSensors.pressureSensor[id];
     // Start measurement process
     error = abp2150pgsa_start_measure(pressureSensor->pin_letter, pressureSensor->pin_number, pressureSensor->hspi);
-    if (error != NO_ERROR) return error;
+    if (error != NO_ERROR) {
+        pressureSensor->pressure = 0;
+        pressureSensor->temperature = 0;
+        return error;
+    }
 
     // Read status of the sensor and wait for it to not be busy
     uint8_t is_busy = 1;
@@ -66,16 +73,28 @@ Errors pressure_sensor_read_data(uint16_t id) {
     while(is_busy && tries < MAX_TRIES) {
         vTaskDelay(10 / portTICK_PERIOD_MS); // Wait and make sure measurement is done
         error = abp2150pgsa_is_busy(pressureSensor->pin_letter, pressureSensor->pin_number, pressureSensor->hspi, &is_busy);
-        if (error != NO_ERROR) return error;
+        if (error != NO_ERROR) {
+            pressureSensor->pressure = 0;
+            pressureSensor->temperature = 0;
+            return error;
+        }
 
         tries++;
     }
-    if (tries >= MAX_TRIES) return TRIES_EXCEEDED;
+    if (tries >= MAX_TRIES) {
+        pressureSensor->pressure = 0;
+        pressureSensor->temperature = 0;
+        return TRIES_EXCEEDED;
+    };
 
     // Read data from the sensor
     double return_data[2] = {0};
     error = abp2150pgsa_read_data(pressureSensor->pin_letter, pressureSensor->pin_number, pressureSensor->hspi, return_data);
-    if (error != NO_ERROR) return error;
+    if (error != NO_ERROR) {
+        pressureSensor->pressure = 0;
+        pressureSensor->temperature = 0;
+        return error;
+    }
 
     pressureSensor->pressure = return_data[0];
     pressureSensor->temperature = return_data[1];

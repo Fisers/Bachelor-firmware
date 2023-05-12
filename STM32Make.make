@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+Core/Src/cli_interface.c \
 Core/Src/freertos.c \
 Core/Src/main.c \
 Core/Src/stm32l4xx_hal_msp.c \
@@ -72,9 +73,10 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
 Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c \
 Middlewares/Src/commons.c \
 Middlewares/Src/ftoa.c \
+Middlewares/Src/motor.c \
 Middlewares/Src/pressure_sensor.c \
 Middlewares/Src/printf.c \
-Middlewares/Src/relay.c \
+Middlewares/Src/valve.c \
 Middlewares/Src/water_sensor.c \
 Middlewares/Src/water_switch.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
