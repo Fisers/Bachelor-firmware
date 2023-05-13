@@ -66,14 +66,14 @@ const osThreadAttr_t comsTask_attributes = {
 osThreadId_t sensorReadHandle;
 const osThreadAttr_t sensorRead_attributes = {
   .name = "sensorRead",
-  .stack_size = 128 * 6,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for controlTask */
 osThreadId_t controlTaskHandle;
 const osThreadAttr_t controlTask_attributes = {
   .name = "controlTask",
-  .stack_size = 128 * 4,
+  .stack_size = 128 * 6,
   .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
