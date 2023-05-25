@@ -59,7 +59,7 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 osThreadId_t comsTaskHandle;
 const osThreadAttr_t comsTask_attributes = {
   .name = "comsTask",
-  .stack_size = 128 * 10,
+  .stack_size = 320 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
 /* Definitions for sensorRead */
@@ -73,7 +73,7 @@ const osThreadAttr_t sensorRead_attributes = {
 osThreadId_t controlTaskHandle;
 const osThreadAttr_t controlTask_attributes = {
   .name = "controlTask",
-  .stack_size = 128 * 6,
+  .stack_size = 192 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
