@@ -8,11 +8,11 @@
 /**
  * @brief Add water sensor, initialize it, automaticaly assign ID to it
  * 
- * @param pin_letter GPIOx where x is the character of GPIO port
+ * @param port GPIOx where x is the character of GPIO port
  * @param pin_number PIN number of GPIO (0 to 15)
  * @return Errors Error status defined in errors.h
  */
-Errors water_sensor_add(char pin_letter, uint8_t pin_number);
+Errors water_sensor_add(char port, uint8_t pin_number);
 
 /**
  * @brief Remove water sensor from the list, deinitialize the pin

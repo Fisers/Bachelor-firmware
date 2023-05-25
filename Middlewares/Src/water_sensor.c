@@ -2,8 +2,8 @@
 #include "commons.h"
 
 
-Errors water_sensor_add(char pin_letter, uint8_t pin_number) {
-    return sen0217_init(pin_letter, pin_number);
+Errors water_sensor_add(char port, uint8_t pin_number) {
+    return sen0217_init(port, pin_number);
 }
 
 Errors water_sensor_remove(uint16_t id) {

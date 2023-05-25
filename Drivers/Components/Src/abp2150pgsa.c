@@ -10,8 +10,8 @@ uint8_t get_status[1] = {0xF0};
 uint8_t start_measurement[3] = {0xAA, 0x00, 0x00};
 uint8_t get_measurement[7] = {0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-Errors abp2150pgsa_init(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef hspi) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors abp2150pgsa_init(char port, uint8_t pin_number, SPI_HandleTypeDef hspi) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     // Init CS pin
@@ -32,7 +32,7 @@ Errors abp2150pgsa_init(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef h
 
       tries++;
       vTaskDelay(10 / portTICK_PERIOD_MS);
-    } while(!(0x02 & status) && tries <= MAX_TRIES);
+    } while(!(0x40 & status) && tries <= MAX_TRIES);
 
     if(tries >= MAX_TRIES) return DOESNT_EXIST;
 
@@ -40,8 +40,8 @@ Errors abp2150pgsa_init(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef h
 }
 
 
-Errors abp2150pgsa_start_measure(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef hspi) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors abp2150pgsa_start_measure(char port, uint8_t pin_number, SPI_HandleTypeDef hspi) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     uint8_t return_data[sizeof(start_measurement)];
@@ -49,14 +49,14 @@ Errors abp2150pgsa_start_measure(char pin_letter, uint8_t pin_number, SPI_Handle
     HAL_SPI_TransmitReceive(&hspi, (uint8_t*)start_measurement, (uint8_t*)return_data, sizeof(start_measurement), HAL_MAX_DELAY);
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
 
-    if(!(0x02 & return_data[0])) return DOESNT_EXIST;
+    if(!(0x40 & return_data[0])) return DOESNT_EXIST;
 
     return NO_ERROR;
 }
 
 
-Errors abp2150pgsa_is_busy(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef hspi, uint8_t *busy) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors abp2150pgsa_is_busy(char port, uint8_t pin_number, SPI_HandleTypeDef hspi, uint8_t *busy) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     uint8_t status = 0xFF;
@@ -64,16 +64,16 @@ Errors abp2150pgsa_is_busy(char pin_letter, uint8_t pin_number, SPI_HandleTypeDe
     HAL_SPI_TransmitReceive(&hspi, (uint8_t*)get_status, &status, sizeof(get_status), HAL_MAX_DELAY);
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
 
-    if(status == 0xFF) return DOESNT_EXIST;
+    if(status == 0xFF || !(0x40 & status)) return DOESNT_EXIST;
 
-    *busy = 0x04 & status;
+    *busy = 0x20 & status;
 
     return NO_ERROR;
 }
 
 
-Errors abp2150pgsa_read_data(char pin_letter, uint8_t pin_number, SPI_HandleTypeDef hspi, double *return_data) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors abp2150pgsa_read_data(char port, uint8_t pin_number, SPI_HandleTypeDef hspi, double *return_data) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     uint8_t response[7] = {0x00};

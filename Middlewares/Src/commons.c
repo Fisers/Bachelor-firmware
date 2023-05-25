@@ -1,7 +1,7 @@
 #include "commons.h"
 
-GPIO_TypeDef* select_gpiox(char pin_letter) {
-    switch (pin_letter)
+GPIO_TypeDef* select_gpiox(char port) {
+    switch (port)
     {
     case 'A':
         return GPIOA;

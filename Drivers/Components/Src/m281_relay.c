@@ -1,8 +1,8 @@
 #include "m281_relay.h"
 #include "commons.h"
 
-Errors m281_init(char pin_letter, uint8_t pin_number) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors m281_init(char port, uint8_t pin_number) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     // Initialize the pin in case it wasn't already done
@@ -18,8 +18,8 @@ Errors m281_init(char pin_letter, uint8_t pin_number) {
     return NO_ERROR;
 }
 
-Errors m281_enable(char pin_letter, uint8_t pin_number) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors m281_enable(char port, uint8_t pin_number) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
@@ -27,8 +27,8 @@ Errors m281_enable(char pin_letter, uint8_t pin_number) {
     return NO_ERROR;
 }
 
-Errors m281_disable(char pin_letter, uint8_t pin_number) {
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+Errors m281_disable(char port, uint8_t pin_number) {
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_RESET);

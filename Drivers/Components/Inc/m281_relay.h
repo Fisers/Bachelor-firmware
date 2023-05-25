@@ -8,23 +8,28 @@
 /**
  * @brief Initializes the relay, sets it to default state - open
  * 
- * @param relay Relay that should be initialized
+ * @param port GPIOx where x is the character of GPIO port
+ * @param pin_number PIN number of GPIO (0 to 15)
  * @return Errors Error status defined in errors.h 
  */
-Errors m281_init(char pin_letter, uint8_t pin_number);
+Errors m281_init(char port, uint8_t pin_number);
 
 /**
  * @brief Closes/enables the relay
  * 
+ * @param port GPIOx where x is the character of GPIO port
+ * @param pin_number PIN number of GPIO (0 to 15)
  * @return Errors Error status defined in errors.h 
  */
-Errors m281_enable(char pin_letter, uint8_t pin_number);
+Errors m281_enable(char port, uint8_t pin_number);
 
 /**
  * @brief Opens/disables the relay
  * 
+ * @param port GPIOx where x is the character of GPIO port
+ * @param pin_number PIN number of GPIO (0 to 15)
  * @return Errors Error status defined in errors.h 
  */
-Errors m281_disable(char pin_letter, uint8_t pin_number);
+Errors m281_disable(char port, uint8_t pin_number);
 
 #endif  // ifndef M281_RELAY

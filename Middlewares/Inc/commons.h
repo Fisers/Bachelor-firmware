@@ -3,6 +3,6 @@
 
 #include "stm32l4xx_hal.h"
 
-GPIO_TypeDef* select_gpiox(char pin_letter);
+GPIO_TypeDef* select_gpiox(char port);
 
 #endif  // ifndef COMMONS

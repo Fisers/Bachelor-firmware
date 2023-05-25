@@ -17,10 +17,10 @@ struct WaterSensors {
 };
 struct WaterSensors waterSensors = {.last_index = -1};
 
-Errors sen0217_init(char pin_letter, uint8_t pin_number) {
+Errors sen0217_init(char port, uint8_t pin_number) {
     if(waterSensors.last_index+1 > MAX_WATER_SENSORS) return OUT_OF_RANGE;
 
-    GPIO_TypeDef *GPIOx = select_gpiox(pin_letter);
+    GPIO_TypeDef *GPIOx = select_gpiox(port);
     uint16_t GPIO_Pin = 1 << pin_number;
 
     // Initialize the pin in case it wasn't already done

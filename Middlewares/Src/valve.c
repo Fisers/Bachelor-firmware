@@ -6,7 +6,7 @@
 
 typedef struct {
     uint8_t enabled;
-    char pin_letter;
+    char port;
     uint8_t pin_number;
 } Valve;
 
@@ -17,7 +17,7 @@ struct Valves {
 struct Valves valves = {.last_index = -1};
 
 
-Errors valve_add(char pin_letter, uint8_t pin_number) {
+Errors valve_add(char port, uint8_t pin_number) {
     if(valves.last_index+1 > MAX_VALVES) return OUT_OF_RANGE;
 
     // Add valve to our list
@@ -25,11 +25,11 @@ Errors valve_add(char pin_letter, uint8_t pin_number) {
     valves.last_index++;
     uint16_t id = valves.last_index;
     valves.valve[id].enabled = 1;
-    valves.valve[id].pin_letter = pin_letter;
+    valves.valve[id].port = port;
     valves.valve[id].pin_number = pin_number;
     taskEXIT_CRITICAL();
 
-    return m281_init(pin_letter, pin_number);
+    return m281_init(port, pin_number);
 }
 
 Errors valve_remove(uint16_t id) {
@@ -48,12 +48,12 @@ Errors valve_enable(uint16_t id) {
     if (id > valves.last_index) return OUT_OF_RANGE;
     if (valves.valve[id].enabled == 0) return DISABLED;
 
-    return m281_enable(valves.valve[id].pin_letter, valves.valve[id].pin_number);
+    return m281_enable(valves.valve[id].port, valves.valve[id].pin_number);
 }
 
 Errors valve_disable(uint16_t id) {
     if (id > valves.last_index) return OUT_OF_RANGE;
     if (valves.valve[id].enabled == 0) return DISABLED;
 
-    return m281_disable(valves.valve[id].pin_letter, valves.valve[id].pin_number);
+    return m281_disable(valves.valve[id].port, valves.valve[id].pin_number);
 }

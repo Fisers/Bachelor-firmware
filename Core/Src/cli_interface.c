@@ -23,7 +23,6 @@ SPI_HandleTypeDef *spi_handle;
 uint8_t UART1_rxBuffer[12] = {0};
 uint8_t incomming_command[12] = {0};
 uint8_t cmd_index = 0;
-uint8_t handle_command = 0;
 
 uint8_t device_to_add[3] = {0};
 
@@ -32,7 +31,7 @@ uint8_t system_status = 0; // Is system activated / initialization process ended
 void send_response(Errors error, char *extra_data) {
     char response[32] = {0};
     if(strlen(extra_data) == 0) snprintf(response, 32, "%i\n", error);
-    else snprintf(response, 32, "%i, %s\n", error, extra_data);
+    else snprintf(response, 32, "%i,%s\n", error, extra_data);
     
     HAL_UART_Transmit(uart_handle, (uint8_t*)response, 32, HAL_MAX_DELAY);
 }
@@ -119,6 +118,8 @@ Errors cli_handle_commands() {
         break;
     
     default:
+        send_error(DOESNT_EXIST);
+        reset_inc_command();
         break;
     }
 
@@ -220,8 +221,6 @@ Errors cli_handle_add_device() {
         case 1: // Pressure sensor
             error = pressure_sensor_add(device_to_add[1], device_to_add[2], *spi_handle, &assigned_id);
             if (error != NO_ERROR) break;
-            error = pressure_sensor_read_data(assigned_id);
-            if (error != NO_ERROR) break;
 
             double pressure, temperature = 0;
             char pressure_str[16], temperature_str[16];
@@ -230,7 +229,7 @@ Errors cli_handle_add_device() {
             ftoa(pressure, pressure_str, 3);
             ftoa(temperature, temperature_str, 3);
             taskENTER_CRITICAL();
-            snprintf(response_data, 16, "%s, %s", pressure_str, temperature_str);
+            snprintf(response_data, 16, "%s,%s", pressure_str, temperature_str);
             taskEXIT_CRITICAL();
 
             break;
