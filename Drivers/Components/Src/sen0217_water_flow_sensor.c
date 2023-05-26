@@ -34,24 +34,31 @@ Errors sen0217_init(char port, uint8_t pin_number) {
     switch (GPIO_Pin)
     {
     case GPIO_PIN_0:
+        HAL_NVIC_SetPriority(EXTI0_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI0_IRQn);
         break;
     case GPIO_PIN_1:
+        HAL_NVIC_SetPriority(EXTI1_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI1_IRQn);
         break;
     case GPIO_PIN_2:
+        HAL_NVIC_SetPriority(EXTI2_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI2_IRQn);
         break;
     case GPIO_PIN_3:
+        HAL_NVIC_SetPriority(EXTI3_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI3_IRQn);
         break;
     case GPIO_PIN_4:
+        HAL_NVIC_SetPriority(EXTI4_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI4_IRQn);
         break;
     case GPIO_PIN_5 ... GPIO_PIN_9:
+        HAL_NVIC_SetPriority(EXTI9_5_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
         break;
     case GPIO_PIN_10 ... GPIO_PIN_15:
+        HAL_NVIC_SetPriority(EXTI15_10_IRQn, 3, 0);
         HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
         break;
     default:

@@ -500,6 +500,7 @@ void StartSensorRead(void *argument)
   /* Infinite loop */
   for(;;)
   {
+    vTaskDelay(10 / portTICK_PERIOD_MS);
     if (!system_status) continue;
 
     Errors error = NO_ERROR;
@@ -511,7 +512,6 @@ void StartSensorRead(void *argument)
         global_error = error;
       }
     }
-    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
   /* USER CODE END StartSensorRead */
 }

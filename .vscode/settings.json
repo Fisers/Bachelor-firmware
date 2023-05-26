@@ -7,5 +7,5 @@
         "cli_interface.h": "c",
         "stm32l496xx.h": "c"
     },
-    "cortex-debug.variableUseNaturalFormat": true
+    "cortex-debug.variableUseNaturalFormat": false
 }
